@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat Application</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+        #chat-container {
+            width: 300px;
+            height: 400px;
+            border: 1px solid white;
+            padding: 10px;
+            overflow-y: scroll;
+        }
+        #message-input {
+            width: 300px;
+        }
+        #clear-button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple chat</h1>
+    <form id="name-form">
+        <label for="user-name">Your name:</label><br>
+        <input type="text" id="user-name" name="user-name"><br>
+        <button type="submit">Set name</button>
+    </form>
+    <div id="chat-container">
+        <div><strong>User 1:</strong> Hello!</div>
+        <div><strong>User 2:</strong> Hi there!</div>
+        <div><strong>User 1:</strong> How are you today?</div>
+        <div><strong>User 2:</strong> I'm doing well, thanks!</div>
+        <!-- Add more messages here -->
+    </div>
+    <input id="message-input" type="text" placeholder="Type your message here...">
+    <button id="send-button" disabled>Send</button>
+    <button id="clear-button">Clear chat</button>
+
+    <script>
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const chatContainer = document.getElementById('chat-container');
+        const clearButton = document.getElementById('clear-button');
+        const nameForm = document.getElementById('name-form');
+        const userNameInput = document.getElementById('user-name');
+
+        // Set initial user name to "Anonymous"
+        let userName = 'Anonymous';
+
+        // Update user name and send button state when form is submitted
+        nameForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            userName = userNameInput.value.trim();
+            if (messageInput.value.trim() !== '') {
+                sendButton.disabled = false;
+            }
+        });
+
+        // Display user name in messages
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message !== '') {
+                const newMessage = document.createElement('div');
+                newMessage.textContent = `${userName}: ${message}`;
+                chatContainer.appendChild(newMessage);
+
+                messageInput.value = '';
+                sendButton.disabled = true;
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+
+        function clearChat() {
+            chatContainer.innerHTML = '';
+        }
+
+        clearButton.addEventListener('click', clearChat);
+    </script>
+</body>
+</html>
