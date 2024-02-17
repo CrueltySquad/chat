@@ -3,89 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Chat App</title>
+  <title>Simple Chat</title>
   <style>
     body {
       background-color: black;
       color: white;
       font-family: Arial, sans-serif;
     }
-    #chat-container {
-      display: flex;
-      flex-direction: column;
-      height: 300px;
-      width: 100%;
-      border: 1px solid white;
-      padding: 10px;
-    }
     #messages {
+      max-height: 400px;
       overflow-y: auto;
-      flex-grow: 1;
+      margin-bottom: 10px;
     }
     #message-input {
+      width: 100%;
       padding: 5px;
     }
   </style>
 </head>
 <body>
-  <h1>Simple Chat App</h1>
-  <div id="chat-container">
-    <div id="messages"></div>
-    <input id="message-input" type="text" placeholder="Type your message..." />
-  </div>
+  <h1>Simple Chat</h1>
+  <div id="messages"></div>
+  <input id="message-input" type="text" placeholder="Type your message here...">
+  <button id="send-button">Send</button>
+  <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
   <script>
-    // Replace these values with your Pusher app's API key and cluster name
-    const pusherConfig = {
-      apiKey: 'db9f0c57abc95989bef7',
-      cluster: 'us3',
-      channel: 'chat',
-      event: 'new_message'
-    };
-
-    const messagesDiv = document.getElementById('messages');
-    const messageInput = document.getElementById('message-input');
-
-    // Create a Pusher client and subscribe to the chat channel
-    const pusher = new Pusher(pusherConfig.apiKey, {
-      cluster: pusherConfig.cluster,
-      encrypted: true,
-      forceTLS: true
+    var pusher = new Pusher("db9f0c57abc95989bef7", {
+      cluster: "us3",
     });
 
-    const channel = pusher.subscribe(pusherConfig.channel);
+    var channel = pusher.subscribe("Crueltysquad");
 
-    // Display incoming messages
-    channel.bind(pusherConfig.event, (message) => {
-      const messageElement = document.createElement('p');
-      messageElement.textContent = message.text;
-      messagesDiv.appendChild(messageElement);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    channel.bind("new-message", function(data) {
+      var messageElement = document.createElement("p");
+      messageElement.textContent = data.user + ": " + data.message;
+      document.getElementById("messages").appendChild(messageElement);
     });
 
-    // Send message on input enter keypress
-    messageInput.addEventListener('keypress', (event) => {
-      if (event.keyCode === 13) {
-        sendMessage();
+    document.getElementById("send-button").addEventListener("click", function() {
+      var messageInput = document.getElementById("message-input");
+      var message = messageInput.value;
+      if (message.trim()) {
+        channel.trigger("new-message", {
+          user: "User",
+          message: message.trim(),
+        });
+        messageInput.value = "";
       }
     });
-
-    // Send message
-    function sendMessage() {
-      if (messageInput.value.trim()) {
-        const message = {
-          text: messageInput.value,
-          name: 'User'
-        };
-
-        // Send the message to the Pusher server
-        channel.trigger(pusherConfig.event, message);
-
-        messageInput.value = '';
-      }
-    }
-
-    // Focus on the input when the page loads
-    messageInput.focus();
   </script>
 </body>
 </html>
