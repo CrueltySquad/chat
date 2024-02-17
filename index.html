@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Chat</title>
     <style>
         body {
@@ -14,7 +15,7 @@
             background-color: black;
             color: white;
             width: 50%;
-            height: 400px;
+            height: 200px;
             padding: 10px;
             overflow-y: auto;
             float: left;
@@ -50,15 +51,13 @@
 
         const channel = pusher.subscribe('chat');
 
-        function sendMessage(event) {
-            if (event.keyCode === 13 && document.getElementById('name-input').value !== '') {
-                channel.trigger('new-message', {
-                    user: document.getElementById('name-input').value,
-                    message: document.getElementById('message-input').value
-                });
-                document.getElementById('message-input').value = '';
-            }
-        }
+        channel.bind('new-message', function(data) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('p');
+            messageElement.textContent = `${data.user}: ${data.message}`;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
 
         function setName(event) {
             if (event.keyCode === 13 && document.getElementById('name-input').value !== '') {
@@ -67,13 +66,17 @@
             }
         }
 
-        channel.bind('new-message', function(data) {
-            const chatBox = document.getElementById('chat-box');
-            const messageElement = document.createElement('p');
-            messageElement.textContent = `${data.user}: ${data.message}`;
-            chatBox.appendChild(messageElement);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
+        function sendMessage(event) {
+            if (event.keyCode === 13 && document.getElementById('name-input').value !== '') {
+                const user = document.getElementById('name-input').value;
+                const message = document.getElementById('message-input').value;
+                channel.trigger('new-message', {
+                    user: user,
+                    message: message
+                });
+                document.getElementById('message-input').value = '';
+            }
+        }
     </script>
     <div id="name-display"></div>
 </body>
