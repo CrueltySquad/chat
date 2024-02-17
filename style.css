@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#wrapper {
+    width: 750px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+#menu {
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#chatbox {
+    border: 1px solid #ccc;
+    height: 300px;
+    overflow-y: scroll;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.msgln {
+    margin: 0 0 5px 0;
+}
+
+.msgln span.left-info {
+    color: orangered;
+}
+
+.msgln span.chat-time {
+    color: #666;
+    font-size: 60%;
+    vertical-align: super;
+}
+
+.msgln b.user-name, .msgln b.user-name-left {
+    font-weight: bold;
+    background: #546e7a;
+    color: white;
+    padding: 2px 4px;
+    font-size: 90%;
+    border-radius: 4px;
+    margin: 0 5px 0 0;
+}
+
+.msgln b.user-name-left {
+    background: orangered;
+}
+
+#message-form {
+    display: flex;
+}
+
+#usermsg {
+    flex: 1;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    padding: 2px 4px;
+}
+
+#submitmsg {
+    background: #546e7a;
+    border: 1px solid #546e7a;
+    color: white;
+    padding: 2px 4px;
+    font-size: 90%;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#submitmsg:hover {
+    background: #3a4e5d;
+    border: 1px solid #3a4e5d;
+}
+
+.error {
+    color: #ff0000;
+}
