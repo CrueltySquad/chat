@@ -1,58 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Chat</title>
-  <style>
-    body {
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    #messages {
-      max-height: 200px;
-      overflow-y: auto;
-      margin-bottom: 2px;
-      border: 2px solid white;
-      padding: 200px;
-      width: 25%;
-    }
-    #message-input {
-      width: 50%;
-      padding: 2px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Simple Chat</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        #chat-box {
+            background-color: black;
+            color: white;
+            width: 50%;
+            height: 400px;
+            padding: 10px;
+            overflow-y: auto;
+            float: left;
+            margin: 1em;
+        }
+        #message-input-container {
+            width: 50%;
+            padding: 10px;
+            float: left;
+            margin: 1em;
+        }
+        #message-input {
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Simple Chat</h1>
-  <div id="messages"></div>
-  <input id="message-input" type="text" placeholder="Type your message here..." onkeydown="sendMessage(event)">
-  <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
-  <script>
-    var pusher = new Pusher("db9f0c57abc95989bef7", {
-      cluster: "us3",
-    });
-
-    var channel = pusher.subscribe("chat");
-
-    channel.bind("new-message", function(data) {
-      var messageElement = document.createElement("p");
-      messageElement.textContent = data.user + ": " + data.message;
-      document.getElementById("messages").appendChild(messageElement);
-    });
-
-    function sendMessage(event) {
-      var messageInput = event.target;
-      var message = messageInput.value;
-      if (event.keyCode === 13 && message.trim()) {
-        channel.trigger("new-message", {
-          user: "User",
-          message: message.trim(),
+    <h1>Simple Chat</h1>
+    <div id="chat-box">
+        <!-- Chat messages will be inserted here -->
+    </div>
+    <div id="message-input-container">
+        <input id="name-input" type="text" placeholder="Type your name here..." onkeydown="setName(event)">
+        <input id="message-input" type="text" placeholder="Type your message here..." onkeydown="sendMessage(event)">
+    </div>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script>
+        const pusher = new Pusher('db9f0c57abc95989bef7', {
+            cluster: 'us3',
+            forceTLS: true
         });
-        messageInput.value = "";
-      }
-    }
-  </script>
+
+        const channel = pusher.subscribe('chat');
+
+        function sendMessage(event) {
+            if (event.keyCode === 13 && document.getElementById('name-input').value !== '') {
+                channel.trigger('new-message', {
+                    user: document.getElementById('name-input').value,
+                    message: document.getElementById('message-input').value
+                });
+                document.getElementById('message-input').value = '';
+            }
+        }
+
+        function setName(event) {
+            if (event.keyCode === 13 && document.getElementById('name-input').value !== '') {
+                const user = document.getElementById('name-input').value;
+                document.getElementById('name-display').textContent = user;
+            }
+        }
+
+        channel.bind('new-message', function(data) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('p');
+            messageElement.textContent = `${data.user}: ${data.message}`;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    </script>
+    <div id="name-display"></div>
 </body>
 </html>
