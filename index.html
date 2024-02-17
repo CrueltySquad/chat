@@ -1,27 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Simple Chat</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Chat App</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    #chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 300px;
+      width: 100%;
+      border: 1px solid white;
+      padding: 10px;
+    }
+    #messages {
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+    #message-input {
+      padding: 5px;
+    }
+  </style>
 </head>
 <body>
-<div id="wrapper">
-    <div id="menu">
-        <p class="welcome">Welcome, <b id="user-name"></b></p>
-        <p class="logout"><a id="exit" href="#">Exit Chat</a></p>
-    </div>
+  <h1>Simple Chat App</h1>
+  <div id="chat-container">
+    <div id="messages"></div>
+    <input id="message-input" type="text" placeholder="Type your message..." />
+  </div>
+  <script>
+    const socket = new WebSocket('wss://localhost/chat');
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('message-input');
 
-    <div id="chatbox">
-        <div id="chat-history"></div>
-    </div>
+    // Display incoming messages
+    socket.onmessage = (event) => {
+      const message = document.createElement('p');
+      message.textContent = event.data;
+      messagesDiv.appendChild(message);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    };
 
-    <form id="message-form">
-        <input name="usermsg" type="text" id="usermsg" autocomplete="off"/>
-        <input name="submitmsg" type="submit" id="submitmsg" value="Send" />
-    </form>
-</div>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script type="text/javascript" src="script.js"></script>
+    // Send message on input enter keypress
+    messageInput.addEventListener('keypress', (event) => {
+      if (event.keyCode === 13) {
+        sendMessage();
+      }
+    });
+
+    // Send message
+    function sendMessage() {
+      if (messageInput.value.trim()) {
+        socket.send(messageInput.value);
+        messageInput.value = '';
+      }
+    }
+
+    // Focus on the input when the page loads
+    messageInput.focus();
+  </script>
 </body>
 </html>
