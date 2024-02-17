@@ -34,17 +34,33 @@
     <input id="message-input" type="text" placeholder="Type your message..." />
   </div>
   <script>
-    const socket = new WebSocket('wss://localhost/chat');
+    // Replace these values with your Pusher app's API key and cluster name
+    const pusherConfig = {
+      apiKey: 'db9f0c57abc95989bef7',
+      cluster: 'us3',
+      channel: 'chat',
+      event: 'new_message'
+    };
+
     const messagesDiv = document.getElementById('messages');
     const messageInput = document.getElementById('message-input');
 
+    // Create a Pusher client and subscribe to the chat channel
+    const pusher = new Pusher(pusherConfig.apiKey, {
+      cluster: pusherConfig.cluster,
+      encrypted: true,
+      forceTLS: true
+    });
+
+    const channel = pusher.subscribe(pusherConfig.channel);
+
     // Display incoming messages
-    socket.onmessage = (event) => {
-      const message = document.createElement('p');
-      message.textContent = event.data;
-      messagesDiv.appendChild(message);
+    channel.bind(pusherConfig.event, (message) => {
+      const messageElement = document.createElement('p');
+      messageElement.textContent = message.text;
+      messagesDiv.appendChild(messageElement);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    };
+    });
 
     // Send message on input enter keypress
     messageInput.addEventListener('keypress', (event) => {
@@ -56,7 +72,14 @@
     // Send message
     function sendMessage() {
       if (messageInput.value.trim()) {
-        socket.send(messageInput.value);
+        const message = {
+          text: messageInput.value,
+          name: 'User'
+        };
+
+        // Send the message to the Pusher server
+        channel.trigger(pusherConfig.event, message);
+
         messageInput.value = '';
       }
     }
