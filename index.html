@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,28 +12,30 @@
       font-family: Arial, sans-serif;
     }
     #messages {
-      max-height: 400px;
+      max-height: 200px;
       overflow-y: auto;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
+      border: 2px solid white;
+      padding: 200px;
+      width: 23%;
     }
     #message-input {
-      width: 100%;
-      padding: 5px;
+      width: 50%;
+      padding: 2px;
     }
   </style>
 </head>
 <body>
   <h1>Simple Chat</h1>
   <div id="messages"></div>
-  <input id="message-input" type="text" placeholder="Type your message here...">
-  <button id="send-button">Send</button>
+  <input id="message-input" type="text" placeholder="Type your message here..." oninput="sendMessage(event)">
   <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
   <script>
     var pusher = new Pusher("db9f0c57abc95989bef7", {
       cluster: "us3",
     });
 
-    var channel = pusher.subscribe("Crueltysquad");
+    var channel = pusher.subscribe("chat");
 
     channel.bind("new-message", function(data) {
       var messageElement = document.createElement("p");
@@ -40,8 +43,8 @@
       document.getElementById("messages").appendChild(messageElement);
     });
 
-    document.getElementById("send-button").addEventListener("click", function() {
-      var messageInput = document.getElementById("message-input");
+    function sendMessage(event) {
+      var messageInput = event.target;
       var message = messageInput.value;
       if (message.trim()) {
         channel.trigger("new-message", {
@@ -50,7 +53,7 @@
         });
         messageInput.value = "";
       }
-    });
+    }
   </script>
 </body>
 </html>
