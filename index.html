@@ -3,81 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chat</title>
+    <title>Real-time Chat (Pusher)</title>
     <style>
         body {
-            background-color: black;
-            color: white;
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
         }
-        #chat-box {
-            background-color: black;
-            color: white;
-            width: 50%;
-            height: 200px;
+
+        #chat-container {
+            width: 400px;
+            margin: 0 auto;
+        }
+
+        #chat-window {
+            border: 1px solid #ccc;
             padding: 10px;
+            height: 300px;
             overflow-y: auto;
-            float: left;
-            margin: 1em;
         }
-        #message-input-container {
-            width: 50%;
-            padding: 10px;
-            float: left;
-            margin: 1em;
+
+        #message-form {
+            display: flex;
+            margin-top: 10px;
         }
+
         #message-input {
-            width: 100%;
+            flex-grow: 1;
             padding: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Simple Chat</h1>
-    <div id="chat-box">
-        <!-- Chat messages will be inserted here -->
+    <div id="chat-container">
+        <div id="chat-window">
+            <!-- Messages will be inserted here by JavaScript -->
+        </div>
+        <form id="message-form">
+            <input type="text" id="message-input" placeholder="Type your message...">
+            <button type="submit">Send</button>
+        </form>
     </div>
-    <div id="message-input-container">
-        <input id="name-input" type="text" placeholder="Type your name here..." onkeydown="setName(event)">
-        <input id="message-input" type="text" placeholder="Type your message here..." onkeydown="sendMessage(event)">
-    </div>
-    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     <script>
         const pusher = new Pusher('db9f0c57abc95989bef7', {
             cluster: 'us3',
-            forceTLS: true
+            encrypted: true
         });
 
-        const channel = pusher.subscribe('chat');
+        const channel = pusher.subscribe('chat-channel');
 
-        channel.bind('new-message', function(data) {
-            const chatBox = document.getElementById('chat-box');
+        channel.bind('chat-message', function(data) {
             const messageElement = document.createElement('p');
-            messageElement.textContent = `${data.user}: ${data.message}`;
-            chatBox.appendChild(messageElement);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            messageElement.textContent = data.message;
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         });
 
-        function setName(event) {
-            if (event.keyCode === 13 && document.getElementById('name-input').value !== '') {
-                const user = document.getElementById('name-input').value;
-                document.getElementById('name-display').textContent = user;
-            }
-        }
+        document.getElementById('message-form').addEventListener('submit', function(event) {
+            event.preventDefault();
 
-        function sendMessage(event) {
-            if (event.keyCode === 13 && document.getElementById('name-input').value !== '') {
-                const user = document.getElementById('name-input').value;
-                const message = document.getElementById('message-input').value;
-                channel.trigger('new-message', {
-                    user: user,
-                    message: message
-                });
-                document.getElementById('message-input').value = '';
+            const messageInput = document.getElementById('message-input');
+            const chatWindow = document.getElementById('chat-window');
+
+            if (messageInput.value.trim()) {
+                channel.trigger('chat-message', { message: messageInput.value });
+                messageInput.value = '';
             }
-        }
+        });
     </script>
-    <div id="name-display"></div>
 </body>
 </html>
